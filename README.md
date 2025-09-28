@@ -77,29 +77,9 @@ new KeyValueStore<>(CacheType.LFU, 1000);
 - Cleanup: Scheduled executor runs `cleanUp()` periodically; reads also enforce TTL lazily.
 
 ### Architecture diagram
-```mermaid
-flowchart TD
-    A[Application Code] --> B[Cache&lt;K,V&gt;]
-    B --> C[KeyValueStore&lt;K,V&gt;]
-    C -.selects via CacheType.-> D{IEvictStrategy&lt;K,V&gt;}
-    D --> E[LRUStrategy]
-    D --> F[LFUStrategy]
-
-    subgraph LRU internals
-      E --> G[ConcurrentHashMap&lt;K, CacheNode&lt;K,V&gt;&gt;]
-      E --> H[Doubly Linked List of CacheNode&lt;K,V&gt;]
-    end
-
-    subgraph LFU internals
-      F --> I[ConcurrentHashMap&lt;K, CacheNode&lt;K,V&gt;&gt;]
-      F --> J[Frequency Buckets: freq → LinkedHashSet&lt;K&gt;]
-    end
-
-    subgraph Background
-      K[Scheduled cleanUp()]
-      K --> D
-    end
-```
+<p align="center">
+  <img src="docs/architecture.svg" alt="In-memory cache architecture diagram" width="800" />
+</p>
 
 Threading model
 - Mutating calls (`put/remove`) are executed on a single-threaded executor and guarded by a lock for list integrity.
